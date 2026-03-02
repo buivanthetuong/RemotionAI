@@ -21,7 +21,7 @@ function kineticSlide(
   frame: number,
   fps: number,
   startFrame: number,
-  durationFrames: number
+  durationFrames: number,
 ): number {
   return spring({
     frame: frame - startFrame,
@@ -199,7 +199,7 @@ export const VTVcabKhampha: React.FC = () => {
   const { fps, width, height } = useVideoConfig();
 
   // ── Background slow pan: moves from left to right over full 5s ──
-  const bgTranslateX = interpolate(frame, [0, 5 * fps], [0, -60], {
+  const bgTranslateX = interpolate(frame, [0, 5 * fps], [0, -200], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
     easing: Easing.inOut(Easing.quad),
@@ -240,9 +240,9 @@ export const VTVcabKhampha: React.FC = () => {
         }}
       >
         <Img
-          src={staticFile("BG_5.jpg")}
+          src={staticFile("BG_6.jpg")}
           style={{
-            width: "110%",
+            width: "120%",
             height: "100%",
             objectFit: "cover",
             transform: `translateX(${bgTranslateX}px)`,

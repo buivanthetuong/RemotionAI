@@ -1,7 +1,7 @@
 import React from "react";
 import { Composition } from "remotion";
-import { MyComposition } from "./Composition";
-import { VTVcabKhampha } from "./VTVcabKhamphaComposition";
+import { MyComposition } from "./compositions/Composition";
+import { VTVcabKhampha } from "./compositions/VTVcabKhamphaComposition";
 
 export const RemotionRoot: React.FC = () => {
   return (
