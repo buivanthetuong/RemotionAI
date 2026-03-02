@@ -2,6 +2,7 @@ import React from "react";
 import { Composition } from "remotion";
 import { MyComposition } from "./compositions/Composition";
 import { VTVcabKhampha } from "./compositions/VTVcabKhamphaComposition";
+import { TikTokHookTemplate } from "./compositions/TikTokHookComposition";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -21,6 +22,16 @@ export const RemotionRoot: React.FC = () => {
         id="VTVcabKhampha"
         component={VTVcabKhampha}
         durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+
+      {/* TikTok Hook Template — Top 5 Most Downloaded Videos (4 giây) */}
+      <Composition
+        id="TikTokHook"
+        component={TikTokHookTemplate}
+        durationInFrames={120}
         fps={30}
         width={1080}
         height={1920}

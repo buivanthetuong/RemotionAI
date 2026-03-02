@@ -37,7 +37,7 @@ const VTVcabLogo: React.FC<{ progress: number }> = ({ progress }) => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const opacity = interpolate(progress, [0, 0.4], [0, 1], {
+  const opacity = interpolate(progress, [0, 1], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
@@ -90,7 +90,7 @@ const KhamPhaBadge: React.FC<{ progress: number }> = ({ progress }) => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const opacity = interpolate(progress, [0, 0.4], [0, 1], {
+  const opacity = interpolate(progress, [0, 1], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
@@ -213,10 +213,10 @@ export const VTVcabKhampha: React.FC = () => {
   const khamPhaProgress = kineticSlide(frame, fps, 5, Math.round(0.45 * fps));
 
   // Phase 3: Divider line rises from bottom — starts at frame 25
-  const dividerProgress = kineticSlide(frame, fps, 30, Math.round(0.4 * fps));
+  const dividerProgress = kineticSlide(frame, fps, 25, Math.round(0.7 * fps));
 
   // Phase 4: Title text slides from right — starts at frame 38
-  const titleProgress = kineticSlide(frame, fps, 35, Math.round(0.55 * fps));
+  const titleProgress = kineticSlide(frame, fps, 35, Math.round(1.5 * fps));
 
   const title =
     "Đừng bản thân phải buồn bã, hãy để tôi giúp bạn tìm ra niềm vui trong cuộc sống của bạn nhé!";
