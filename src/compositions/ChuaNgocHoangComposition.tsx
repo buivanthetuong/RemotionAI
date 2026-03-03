@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Easing,
   AbsoluteFill,
   Img,
   interpolate,
@@ -8,8 +7,9 @@ import {
   staticFile,
   useCurrentFrame,
   useVideoConfig,
-  Sequence,
 } from "remotion";
+import { TransitionSeries, linearTiming } from "@remotion/transitions";
+import { pageTurn } from "../presentations/pageTurn";
 import { loadFont } from "@remotion/google-fonts/Montserrat";
 
 // ─── Load Fonts ───────────────────────────────────────────────────────────────
@@ -19,7 +19,8 @@ const { fontFamily: montserratFamily } = loadFont("normal", {
 });
 
 // ─── Constants & Timings ──────────────────────────────────────────────────────
-const ITEM_DURATION = 60; // 3 seconds at 30fps
+const ITEM_DURATION = 80; // 3 seconds at 30fps
+const TRANSITION_DURATION = 40; // Longer duration for realistic page turn
 const texts = ["chùa ngọc hoàng", "một danh lam", "tại tp HCM"];
 
 // ─── Helper: eased spring progress ────────────────────────────────────────────
@@ -103,7 +104,7 @@ const ContentGroup: React.FC<{
   showImage?: boolean;
 }> = ({ text, showImage = false }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
   // 1. Entrance (Image + Container)
   const entrance = kineticSlide(frame, fps, 0, 15);
@@ -111,10 +112,6 @@ const ContentGroup: React.FC<{
   const pushUp = kineticSlide(frame, fps, 15, 15);
   // 3. Text appear - Start at 0 if no image, else 22
   const textProgress = kineticSlide(frame, fps, showImage ? 22 : 0, 18);
-  // 4. Exit slide left - Start earlier (frame 50) since duration is 60
-  const exitProgress = kineticSlide(frame, fps, 50, 10);
-
-  const exitTranslateX = interpolate(exitProgress, [0, 1], [0, -width]);
 
   return (
     <AbsoluteFill
@@ -122,9 +119,40 @@ const ContentGroup: React.FC<{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        transform: `translateX(${exitTranslateX}px)`,
+        backgroundColor: "#fff",
       }}
     >
+      {/* ── Background decoration ── */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(circle, #ffffff 0%, #ececec 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0) 100%)",
+        }}
+      />
+      {/* ── Paper texture overlay ── */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: 0.03,
+          backgroundImage: `repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0,0,0,0.05) 2px,
+            rgba(0,0,0,0.05) 4px
+          )`,
+        }}
+      />
       <div
         style={{
           display: "flex",
@@ -132,6 +160,8 @@ const ContentGroup: React.FC<{
           alignItems: "center",
           justifyContent: "center",
           width: "100%",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {showImage && <ImageCard progress={entrance} pushUpProgress={pushUp} />}
@@ -143,61 +173,26 @@ const ContentGroup: React.FC<{
 
 // ─── Main Composition ─────────────────────────────────────────────────────────
 export const ChuaNgocHoangComposition: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { width, height, fps } = useVideoConfig();
-
-  // Background slow pan (VTV style)
-  const bgTranslateX = interpolate(frame, [0, 12 * fps], [0, -150], {
-    extrapolateRight: "clamp",
-    easing: Easing.inOut(Easing.quad),
-  });
-
   return (
-    <div
-      style={{
-        width,
-        height,
-        position: "relative",
-        overflow: "hidden",
-        backgroundColor: "#fff",
-      }}
-    >
-      {/* ── Background decoration ── */}
-      <AbsoluteFill>
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "radial-gradient(circle, #ffffff 0%, #ececec 100%)",
-            transform: `translateX(${bgTranslateX}px)`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0) 100%)",
-          }}
-        />
-      </AbsoluteFill>
-
+    <TransitionSeries>
       {/* Intro: "ĐÂY LÀ" + Image */}
-      <Sequence from={0} durationInFrames={ITEM_DURATION}>
+      <TransitionSeries.Sequence durationInFrames={ITEM_DURATION}>
         <ContentGroup text="đây là" showImage />
-      </Sequence>
+      </TransitionSeries.Sequence>
 
-      {/* Subsequent 3 text sequences */}
+      {/* Subsequent 3 text sequences with page-turn transitions */}
       {texts.map((text, i) => (
-        <Sequence
-          key={i}
-          from={(i + 1) * ITEM_DURATION}
-          durationInFrames={ITEM_DURATION}
-        >
-          <ContentGroup text={text} />
-        </Sequence>
+        <React.Fragment key={i}>
+          <TransitionSeries.Transition
+            presentation={pageTurn({ direction: "from-right", perspective: 1600 })}
+            timing={linearTiming({ durationInFrames: TRANSITION_DURATION })}
+          />
+          <TransitionSeries.Sequence durationInFrames={ITEM_DURATION}>
+            <ContentGroup text={text} />
+          </TransitionSeries.Sequence>
+        </React.Fragment>
       ))}
-    </div>
+    </TransitionSeries>
   );
 };
 
