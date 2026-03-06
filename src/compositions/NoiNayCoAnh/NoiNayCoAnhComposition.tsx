@@ -7,9 +7,29 @@ import {
   staticFile,
   useCurrentFrame,
   useVideoConfig,
+  Audio,
+  Sequence,
 } from "remotion";
 import { loadFont } from "@remotion/google-fonts/Montserrat";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansJP";
+import { calculateAudioFrames } from "../../ultis/audioUtils";
+
+// @ts-ignore
+import nnca1 from "../../assets/conan/nnca_1.mp3";
+// @ts-ignore
+import nnca2 from "../../assets/conan/nnca_2.mp3";
+// @ts-ignore
+import nnca3 from "../../assets/conan/nnca_3.mp3";
+// @ts-ignore
+import nnca4 from "../../assets/conan/nnca_4.mp3";
+// @ts-ignore
+import nnca5 from "../../assets/conan/nnca_5.mp3";
+// @ts-ignore
+import nnca6 from "../../assets/conan/nnca_6.mp3";
+// @ts-ignore
+import nnca7 from "../../assets/conan/nnca_7.mp3";
+// @ts-ignore
+import nnca8 from "../../assets/conan/nnca_8.mp3";
 
 // ─── Load Fonts ───────────────────────────────────────────────────────────────
 const { fontFamily: montserratFamily } = loadFont("normal", {
@@ -23,17 +43,38 @@ const { fontFamily: notoFamily } = loadNotoSans("normal", {
 });
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-// TikTok: 1080 x 1920, 30fps, 10s = 300 frames
-const DURATION_FRAMES = 300;
-
-// Lyrics lines - each appears for ~3s, staggered
-const LYRICS_LINES = [
-  { text: "Nơi này có anh, có em bên nhau", startFrame: 0, duration: 80 },
-  { text: "Từng khoảnh khắc đẹp mãi in sâu", startFrame: 60, duration: 80 },
-  { text: "Nhớ ánh mắt em ngày ấy dịu dàng", startFrame: 120, duration: 80 },
-  { text: "Như ánh sao đêm giữa không gian", startFrame: 180, duration: 80 },
-  { text: "Nơi này có anh luôn ở bên em", startFrame: 240, duration: 80 },
+// Audio durations in seconds from mp3 files
+const AUDIO_DURATIONS = [
+  5.773, 5.251, 2.821, 1.176, 1.254, 2.168, 1.019, 1.776,
 ];
+
+// Generates dynamic frames based on audio lengths
+let currentAccFrame = 0;
+const gapFrames = 15; // 0.5s gap between lyrics
+
+export const LYRICS_LINES = [
+  { text: "Nơi này có anh, có em bên nhau", audio: nnca1 },
+  { text: "Từng khoảnh khắc đẹp mãi in sâu", audio: nnca2 },
+  { text: "Nhớ ánh mắt em ngày ấy dịu dàng", audio: nnca3 },
+  { text: "Như ánh sao đêm giữa không gian", audio: nnca4 },
+  { text: "Nơi này có anh luôn ở bên em", audio: nnca5 },
+  { text: "Dù ngày mưa bay hay nắng êm đềm", audio: nnca6 },
+  { text: "Tình yêu này trao đến em đong đầy", audio: nnca7 },
+  { text: "Mình bên nhau trọn vẹn từng phút giây", audio: nnca8 },
+].map((line, idx) => {
+  const duration = calculateAudioFrames(AUDIO_DURATIONS[idx], 30);
+  const startFrame = currentAccFrame;
+  currentAccFrame += duration + gapFrames;
+
+  return {
+    ...line,
+    duration,
+    startFrame,
+  };
+});
+
+// TikTok: 1080 x 1920, 30fps
+const DURATION_FRAMES = currentAccFrame + 30; // bufferedend
 
 // ─── Background Layer ──────────────────────────────────────────────────────────
 const BackgroundLayer: React.FC = () => (
@@ -399,14 +440,18 @@ const LyricsSection: React.FC<{ frame: number; fps: number }> = ({
       }}
     />
     {LYRICS_LINES.map((line, i) => (
-      <LyricsLine
-        key={i}
-        text={line.text}
-        startFrame={line.startFrame}
-        duration={line.duration}
-        frame={frame}
-        fps={fps}
-      />
+      <React.Fragment key={i}>
+        <Sequence from={line.startFrame}>
+          <Audio src={line.audio} />
+        </Sequence>
+        <LyricsLine
+          text={line.text}
+          startFrame={line.startFrame}
+          duration={line.duration}
+          frame={frame}
+          fps={fps}
+        />
+      </React.Fragment>
     ))}
   </div>
 );

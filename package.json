@@ -9,6 +9,7 @@
     "@remotion/cli": "4.0.429",
     "@remotion/google-fonts": "4.0.429",
     "@remotion/transitions": "^4.0.429",
+    "mp3-duration": "^1.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "4.0.429"
