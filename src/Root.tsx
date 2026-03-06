@@ -3,7 +3,11 @@ import { Composition } from "remotion";
 import { MyComposition } from "./compositions/Composition";
 import { VTVcabKhampha } from "./compositions/VTVcabKhamphaComposition";
 import { TikTokHookTemplate } from "./compositions/TikTokHookComposition";
-import { ChuaNgocHoangComposition } from "./compositions/ChuaNgocHoangComposition";
+import { ChuaNgocHoangComposition } from "./compositions/CHUA_NGOC_HOANG/ChuaNgocHoangComposition";
+import { ChuaNgocHoangComposition1 } from "./compositions/CHUA_NGOC_HOANG/ChuaNgocHoangComposition1";
+import ChuaNgocHoangComposition2 from "./compositions/CHUA_NGOC_HOANG/ChuaNgocHoangComposition2";
+import ChuaNgocHoangCompositiondatvao from "./compositions/CHUA_NGOC_HOANG/ChuaNgocHoangCompositiondatvao";
+import NoiNayCoAnhComposition from "./compositions/NoiNayCoAnh/NoiNayCoAnhComposition";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -41,7 +45,44 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="chuangochoang"
         component={ChuaNgocHoangComposition}
-        durationInFrames={180}
+        durationInFrames={270}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+
+      <Composition
+        id="chuangochoang1"
+        component={ChuaNgocHoangComposition1}
+        durationInFrames={270}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+
+      <Composition
+        id="chuangochoang2"
+        component={ChuaNgocHoangComposition2}
+        durationInFrames={270}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+
+      <Composition
+        id="chuangochoangdatvao"
+        component={ChuaNgocHoangCompositiondatvao}
+        durationInFrames={270}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+
+      {/* Nơi Này Có Anh — Music Lyric Video TikTok (10 giây, 1080×1920) */}
+      <Composition
+        id="NoiNayCoAnh"
+        component={NoiNayCoAnhComposition}
+        durationInFrames={300}
         fps={30}
         width={1080}
         height={1920}
