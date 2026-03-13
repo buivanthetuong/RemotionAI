@@ -109,7 +109,7 @@ const ImageLayer: React.FC<{
         let localTranslateX = offset.x;
         let localTranslateY = offset.y;
         let localScale = 1;
-        let localOpacity = 1;
+        const localOpacity = 1;
 
         if (isCurrent && slideIndex > 0) {
           const entry = springProgress(slideFrame, fps, 0, 25);

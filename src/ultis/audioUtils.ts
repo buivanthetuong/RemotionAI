@@ -1,8 +1,38 @@
+import { getAudioDurationInSeconds } from "@remotion/media-utils";
+
 export const calculateAudioFrames = (
   durationInSeconds: number,
   fps: number = 30,
 ): number => {
   return Math.ceil(durationInSeconds * fps);
+};
+
+export const getAudioDurationsAndFrames = async <T extends { audio: string }>(
+  items: T[],
+  fps: number = 30,
+) => {
+  let currentAccFrame = 0;
+  const processedItems = [];
+
+  for (const item of items) {
+    const durationInSeconds = await getAudioDurationInSeconds(item.audio);
+    const duration = Math.ceil(durationInSeconds * fps);
+    const startFrame = currentAccFrame;
+
+    // gapFrames can be handled here or outside. Let's assume no gap based on latest user change.
+    currentAccFrame += duration;
+
+    processedItems.push({
+      ...item,
+      duration,
+      startFrame,
+    });
+  }
+
+  return {
+    items: processedItems,
+    totalFrames: currentAccFrame,
+  };
 };
 
 export const timeStringToSeconds = (timeString: string): number => {

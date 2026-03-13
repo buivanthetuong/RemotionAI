@@ -7,7 +7,11 @@ import { ChuaNgocHoangComposition } from "./compositions/CHUA_NGOC_HOANG/ChuaNgo
 import { ChuaNgocHoangComposition1 } from "./compositions/CHUA_NGOC_HOANG/ChuaNgocHoangComposition1";
 import ChuaNgocHoangComposition2 from "./compositions/CHUA_NGOC_HOANG/ChuaNgocHoangComposition2";
 import ChuaNgocHoangCompositiondatvao from "./compositions/CHUA_NGOC_HOANG/ChuaNgocHoangCompositiondatvao";
-import NoiNayCoAnhComposition from "./compositions/NoiNayCoAnh/NoiNayCoAnhComposition";
+import NoiNayCoAnhComposition, {
+  RAW_LYRICS_LINES,
+} from "./compositions/NoiNayCoAnh/NoiNayCoAnhComposition";
+import { getAudioDurationsAndFrames } from "./ultis/audioUtils";
+import { ImageBlastComposition } from "./compositions/ImageBlastComposition";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -82,7 +86,35 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="NoiNayCoAnh"
         component={NoiNayCoAnhComposition}
-        durationInFrames={300}
+        calculateMetadata={async ({ props }) => {
+          const { items, totalFrames } = await getAudioDurationsAndFrames(
+            props.lyricsLines,
+            30,
+          );
+          const finalDuration = totalFrames + 30; // +30 buffered
+          return {
+            durationInFrames: finalDuration,
+            props: {
+              ...props,
+              lyricsLines: items,
+              durationFrames: finalDuration,
+            },
+          };
+        }}
+        defaultProps={{
+          lyricsLines: RAW_LYRICS_LINES,
+          durationFrames: 300,
+        }}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+
+      {/* Image Blast — 4 ảnh đập tuần tự + text reveal (5 giây) */}
+      <Composition
+        id="ImageBlast"
+        component={ImageBlastComposition}
+        durationInFrames={150}
         fps={30}
         width={1080}
         height={1920}

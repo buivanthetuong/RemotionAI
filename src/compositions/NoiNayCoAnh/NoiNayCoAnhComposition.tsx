@@ -12,7 +12,6 @@ import {
 } from "remotion";
 import { loadFont } from "@remotion/google-fonts/Montserrat";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansJP";
-import { calculateAudioFrames } from "../../ultis/audioUtils";
 
 // @ts-ignore
 import nnca1 from "../../assets/conan/nnca_1.mp3";
@@ -42,17 +41,7 @@ const { fontFamily: notoFamily } = loadNotoSans("normal", {
   subsets: ["latin"],
 });
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-// Audio durations in seconds from mp3 files
-const AUDIO_DURATIONS = [
-  5.773, 5.251, 2.821, 1.176, 1.254, 2.168, 1.019, 1.776,
-];
-
-// Generates dynamic frames based on audio lengths
-let currentAccFrame = 0;
-const gapFrames = 15; // 0.5s gap between lyrics
-
-export const LYRICS_LINES = [
+export const RAW_LYRICS_LINES = [
   { text: "Nơi này có anh, có em bên nhau", audio: nnca1 },
   { text: "Từng khoảnh khắc đẹp mãi in sâu", audio: nnca2 },
   { text: "Nhớ ánh mắt em ngày ấy dịu dàng", audio: nnca3 },
@@ -61,20 +50,19 @@ export const LYRICS_LINES = [
   { text: "Dù ngày mưa bay hay nắng êm đềm", audio: nnca6 },
   { text: "Tình yêu này trao đến em đong đầy", audio: nnca7 },
   { text: "Mình bên nhau trọn vẹn từng phút giây", audio: nnca8 },
-].map((line, idx) => {
-  const duration = calculateAudioFrames(AUDIO_DURATIONS[idx], 30);
-  const startFrame = currentAccFrame;
-  currentAccFrame += duration + gapFrames;
+];
 
-  return {
-    ...line,
-    duration,
-    startFrame,
-  };
-});
+export type LyricLineProps = {
+  text: string;
+  audio: string;
+  duration?: number;
+  startFrame?: number;
+};
 
-// TikTok: 1080 x 1920, 30fps
-const DURATION_FRAMES = currentAccFrame + 30; // bufferedend
+export type NoiNayCoAnhProps = {
+  lyricsLines: LyricLineProps[];
+  durationFrames: number;
+};
 
 // ─── Background Layer ──────────────────────────────────────────────────────────
 const BackgroundLayer: React.FC = () => (
@@ -411,10 +399,11 @@ const LyricsLine: React.FC<{
   );
 };
 
-const LyricsSection: React.FC<{ frame: number; fps: number }> = ({
-  frame,
-  fps,
-}) => (
+const LyricsSection: React.FC<{
+  frame: number;
+  fps: number;
+  lyricsLines: LyricLineProps[];
+}> = ({ frame, fps, lyricsLines }) => (
   <div
     style={{
       position: "absolute",
@@ -439,26 +428,33 @@ const LyricsSection: React.FC<{ frame: number; fps: number }> = ({
         marginBottom: 20,
       }}
     />
-    {LYRICS_LINES.map((line, i) => (
+    {lyricsLines.map((line, i) => (
       <React.Fragment key={i}>
-        <Sequence from={line.startFrame}>
-          <Audio src={line.audio} />
-        </Sequence>
-        <LyricsLine
-          text={line.text}
-          startFrame={line.startFrame}
-          duration={line.duration}
-          frame={frame}
-          fps={fps}
-        />
+        {line.startFrame !== undefined && (
+          <Sequence from={line.startFrame}>
+            <Audio src={line.audio} />
+          </Sequence>
+        )}
+        {line.startFrame !== undefined && line.duration !== undefined && (
+          <LyricsLine
+            text={line.text}
+            startFrame={line.startFrame}
+            duration={line.duration}
+            frame={frame}
+            fps={fps}
+          />
+        )}
       </React.Fragment>
     ))}
   </div>
 );
 
 // ─── Progress Bar ──────────────────────────────────────────────────────────────
-const MusicProgressBar: React.FC<{ frame: number }> = ({ frame }) => {
-  const progress = frame / DURATION_FRAMES;
+const MusicProgressBar: React.FC<{ frame: number; durationFrames: number }> = ({
+  frame,
+  durationFrames,
+}) => {
+  const progress = frame / (durationFrames || 1);
   return (
     <div
       style={{
@@ -588,7 +584,10 @@ const CornerDecorations: React.FC = () => {
 };
 
 // ─── Main Composition ──────────────────────────────────────────────────────────
-export const NoiNayCoAnhComposition: React.FC = () => {
+export const NoiNayCoAnhComposition: React.FC<NoiNayCoAnhProps> = ({
+  lyricsLines,
+  durationFrames,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -607,10 +606,10 @@ export const NoiNayCoAnhComposition: React.FC = () => {
       <AlbumSection frame={frame} fps={fps} />
 
       {/* Layer 4 (BOTTOM): Scrolling lyrics */}
-      <LyricsSection frame={frame} fps={fps} />
+      <LyricsSection frame={frame} fps={fps} lyricsLines={lyricsLines} />
 
       {/* Layer 5: Progress bar at very bottom */}
-      <MusicProgressBar frame={frame} />
+      <MusicProgressBar frame={frame} durationFrames={durationFrames} />
 
       {/* Layer 6: Corner Decorative Elements */}
       <CornerDecorations />
